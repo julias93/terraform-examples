@@ -1,0 +1,16 @@
+# Provider region
+region = "ap-northeast-1"
+
+# Tag
+env     = "prod"
+project = "myproject" # or yourname
+#subproject = ""
+
+# Prefix for resource name
+prefix = "myproject-prod-" # example: yourname-env-
+prefix_short = "mypj-" # length must be less than or equal to 6
+
+# CodeBuild
+repo_service = "Github"
+repo_name    = "username/reponame"
+repo_branch  = "main"

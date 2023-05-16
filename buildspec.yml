@@ -1,0 +1,26 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - hostname
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPOSITORY_URL
+  build:
+    commands:
+      - echo Building Docker image...
+      #- docker build -t $REPO_NAME --build-arg SECRET_KEY_BASE=$SECRET_KEY_BASE .
+      - docker pull $REPOSITORY_URL:latest || true
+      - docker build --cache-from $REPOSITORY_URL:latest -t $REPO_NAME --build-arg SECRET_KEY_BASE=$SECRET_KEY_BASE .
+  post_build:
+    commands:
+      - echo Tagging Docker image...
+      - docker tag $REPO_NAME:latest $REPOSITORY_URL:$TAG_NAME
+      - echo Pushing Docker image to ECR...
+      - docker push $REPOSITORY_URL:latest
+      - printf '[{"name":"%s","imageUri":"%s"}]' $ECS_CONTAINER $REPOSITORY_URL:$TAG_NAME > imagedefinitions.json
+
+artifacts:
+  files: imagedefinitions.json
